@@ -80,22 +80,29 @@ canvas {
 <canvas id="space"></canvas>
 
 <div class="center" id="center">
-  <div class="names">Damla ♥ Arda</div>
+  <div class="names">Damla — Arda</div>
   <div class="link"></div>
   <div class="counter" id="counter"></div>
 </div>
 
 <div class="hint">dokun ve zamanı yavaşlat</div>
 
+<!-- 🎵 Ambient Müzik -->
+<audio id="music" loop preload="auto">
+  <source src="quiet.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 const canvas = document.getElementById("space");
 const ctx = canvas.getContext("2d");
 const center = document.getElementById("center");
 const counter = document.getElementById("counter");
+const music = document.getElementById("music");
 
 let stars = [];
 let speed = 0.4;
-let slow = false;
+let targetVolume = 0;
+music.volume = 0;
 
 function resize(){
   canvas.width = innerWidth;
@@ -123,6 +130,10 @@ function draw(){
     ctx.fillStyle = "rgba(255,255,255,.8)";
     ctx.fill();
   });
+
+  // 🔊 yumuşak ses geçişi
+  music.volume += (targetVolume - music.volume) * 0.02;
+
   requestAnimationFrame(draw);
 }
 draw();
@@ -132,16 +143,22 @@ const startDate = new Date("2025-11-22T00:00:00");
 function updateCounter(){
   const diff = Math.abs(new Date() - startDate);
   const d = Math.floor(diff / 86400000);
-  counter.textContent = `${d} gündür aynı evrendeyiz`;
+  counter.textContent = `${d} gündür aynı evrendesiniz`;
 }
 setInterval(updateCounter,1000);
 updateCounter();
 
-// 👆 Dokununca zaman yavaşlar
+// 👆 Dokununca zaman + müzik
 function slowTime(on){
-  slow = on;
   speed = on ? 0.08 : 0.4;
   center.classList.toggle("slow", on);
+
+  if(on){
+    music.play().catch(()=>{});
+    targetVolume = 0.5;
+  } else {
+    targetVolume = 0;
+  }
 }
 
 addEventListener("touchstart", ()=>slowTime(true));
