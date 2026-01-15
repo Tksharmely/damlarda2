@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Damla & Arda</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at bottom, #0a0f2c, #05070f);
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+}
+
+.center {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.names {
+  font-size: 48px;
+  font-weight: 300;
+  letter-spacing: 2px;
+}
+
+.link {
+  width: 220px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #9fa8ff, transparent);
+  margin: 18px 0;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,100% { opacity: .4; transform: scaleX(1); }
+  50% { opacity: 1; transform: scaleX(1.2); }
+}
+
+.counter {
+  font-size: 16px;
+  opacity: .85;
+}
+
+.hint {
+  position: fixed;
+  bottom: 24px;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  opacity: .4;
+}
+
+.slow .counter::after {
+  content: " — şu an sadece biz varız";
+  opacity: .7;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="space"></canvas>
+
+<div class="center" id="center">
+  <div class="names">Damla ♥ Arda</div>
+  <div class="link"></div>
+  <div class="counter" id="counter"></div>
+</div>
+
+<div class="hint">dokun ve zamanı yavaşlat</div>
+
+<script>
+const canvas = document.getElementById("space");
+const ctx = canvas.getContext("2d");
+const center = document.getElementById("center");
+const counter = document.getElementById("counter");
+
+let stars = [];
+let speed = 0.4;
+let slow = false;
+
+function resize(){
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  stars = [];
+  const count = innerWidth < 600 ? 120 : 220;
+  for(let i=0;i<count;i++){
+    stars.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      z: Math.random()*1.5+0.2
+    });
+  }
+}
+resize();
+addEventListener("resize", resize);
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    s.x += speed * s.z;
+    if(s.x > canvas.width) s.x = 0;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.z, 0, Math.PI*2);
+    ctx.fillStyle = "rgba(255,255,255,.8)";
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ⏳ Sayaç
+const startDate = new Date("2025-11-22T00:00:00");
+function updateCounter(){
+  const diff = Math.abs(new Date() - startDate);
+  const d = Math.floor(diff / 86400000);
+  counter.textContent = `${d} gündür aynı evrendeyiz`;
+}
+setInterval(updateCounter,1000);
+updateCounter();
+
+// 👆 Dokununca zaman yavaşlar
+function slowTime(on){
+  slow = on;
+  speed = on ? 0.08 : 0.4;
+  center.classList.toggle("slow", on);
+}
+
+addEventListener("touchstart", ()=>slowTime(true));
+addEventListener("touchend", ()=>slowTime(false));
+addEventListener("mousedown", ()=>slowTime(true));
+addEventListener("mouseup", ()=>slowTime(false));
+</script>
+
+</body>
+</html>
